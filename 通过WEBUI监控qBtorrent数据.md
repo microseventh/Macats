@@ -98,7 +98,7 @@ networks:
         - subnet: fd00:dead:beef:10::/64 # 这里默认即可。
 ```
 
-## 4. 监控端容器构建 (`monitor/Dockerfile`)
+## 4. 监控端容器构建 (`Dockerfile`)
 
 保持监控端镜像轻量级，使用 Python Slim 版本。
 
@@ -111,7 +111,7 @@ COPY monitor.py .
 CMD ["python", "-u", "monitor.py"]
 ```
 
-## 5. 核心监控脚本 (`monitor/monitor.py`)
+## 5. 核心监控脚本 ( monitor.py`)
 
 该脚本负责登录 qB，抓取种子列表，遍历 Peer 详情，并将核心字段清洗后入库。
 
