@@ -502,7 +502,7 @@ services:
     ports:
       - '3000:3000' # 浏览器访问 http://IP:3000
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=xxx# ⚠️设置你的 Grafana 管理员密码
+      - GF_SECURITY_ADMIN_PASSWORD=xxx  # ⚠️设置你的 Grafana 管理员密码
       - GF_INSTALL_PLUGINS=grafana-piechart-panel # 可选：安装饼图插件
     volumes:
       - /opt/qb/grafana_data:/var/lib/grafana # 保持面板和配置不丢失
