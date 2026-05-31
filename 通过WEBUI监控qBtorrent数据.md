@@ -1,6 +1,5 @@
 # qBittorrent 流量监控与离线分析系统构建指南
 
-
 本指南旨在构建一套完整的 qBittorrent (qB) 做种流量监控系统。系统通过宿主机 Python 脚本轮询 qB API，将 Peer 的高频活动特征存入 PostgreSQL 数据库，并提供一键导出为轻量级 SQLite `.db` 文件的方案，方便后续在本地 Mac + Jupyter 环境下进行数据透视与吸血客户端拉黑策略分析。
 
 ## 1. 目录与路径规划
@@ -32,7 +31,6 @@
 ```
 
 *​修改完毕后记得执行 systemctl restart docker 重启 Docker 服务。​*`systemctl restart docker`
-
 
 ## 3. Docker Compose 配置 (`docker-compose.yml`)
 
@@ -318,7 +316,6 @@ qb-monitor-agent  | 🚀 优化版高频采样引擎在服务器后台开始运�
 
 OK，完成了。
 
-
 ## 7. 数据导出与本地直读优化方案
 
 ### 方法一：导出全数据
@@ -505,7 +502,7 @@ services:
     ports:
       - '3000:3000' # 浏览器访问 http://IP:3000
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=LQyy@190925# ⚠️设置你的 Grafana 管理员密码
+      - GF_SECURITY_ADMIN_PASSWORD=xxx# ⚠️设置你的 Grafana 管理员密码
       - GF_INSTALL_PLUGINS=grafana-piechart-panel # 可选：安装饼图插件
     volumes:
       - /opt/qb/grafana_data:/var/lib/grafana # 保持面板和配置不丢失
