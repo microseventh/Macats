@@ -47,16 +47,6 @@ import paramiko
 import threading
 import sys
 import hashlib  #如果缺少请执行安装
-
-# ==================== [ 用户配置区域 ] ====================
-SSH_HOST = "IP"       # 你的服务端（服务器）IP地址
-SSH_PORT = 22
-SSH_USER = "root"
-KEY_PATH = "/Users/"  # 你的 SSH 私钥本地路径，如果是密码请自行修改
-
-REMOTE_DIR = "/opt/qb/downloads"                # 远程保存目录
-LOCAL_FILE = "09.mp4"                          # 本地待传文件
-# ========================================================
 ```
 
 ### 1: 核心组件定义
@@ -231,35 +221,54 @@ def verify_file_integrity():
 ### 最后: 调度总控入口
 
 ```python
-# Cell 3: 启动主流程 (更新版)
-local_proc = None
-master_fd = None
+# Cell 3: 集中控制中心
 
-try:
-    # 1. 启动并获取暗号
-    local_proc, master_fd, code = run_local_croc_properly()
+def start_transfer_job():
+    # ------------------ [ 🛠️ 统一参数配置区域 ] ------------------
+    # 部署时，只需修改以下 6 行参数：
     
-    if code:
-        # 2. 传递给远程端下载
-        ssh_execute_receive(code)
-        
-        # 3. 传输完成后，立刻进行完整性校验 <--- 新增这行
-        verify_file_integrity()
-        
-    else:
-        print("❌ 【错误】未能获取到正确的随机暗号，请确认本地网络是否正常。")
+    global LOCAL_FILE, REMOTE_DIR, SSH_HOST, SSH_PORT, SSH_USER, KEY_PATH
+    
+    LOCAL_FILE = "09.mp4"                  # 本地待传文件
+    REMOTE_DIR = "/opt/qb/"                # 远程保存目录
+    
+    SSH_HOST = "IP"                      # 服务器 IP
+    SSH_PORT = 22                        # SSH 端口
+    SSH_USER = "root"                    # SSH 用户名
+    KEY_PATH = "/Users/"  # 你的 SSH 私钥路径
+    # -----------------------------------------------------------
 
-except KeyboardInterrupt:
-    print("\n⚠️ [提示] 用户手动中断。")
-finally:
-    # 4. 完美扫尾，释放资源
-    print("\n🧹 正在清理本地进程...")
-    if master_fd:
-        try: os.close(master_fd) 
-        except: pass
-    if local_proc and local_proc.poll() is None:
-        local_proc.terminate()
-        print("🔒 本地守护进程已安全关闭。")
+    local_proc = None
+    master_fd = None
+
+    try:
+        # 1. 启动本地守护进程并拿暗号（此时会自动读取上面配置的 LOCAL_FILE）
+        local_proc, master_fd, code = run_local_croc_properly()
+        
+        if code:
+            # 2. 驱使远程接头下载（会自动读取上面配置的 SSH 参数和 REMOTE_DIR）
+            ssh_execute_receive(code)
+            
+            # 3. 传输完成后，立刻进行完整性校验对账
+            verify_file_integrity()
+        else:
+            print("❌ 【错误】未能获取到正确的随机暗号，请确认本地直接运行 'croc send' 是否正常。")
+
+    except KeyboardInterrupt:
+        print("\n⚠️ [提示] 用户手动中断了传输。")
+    finally:
+        # 4. 无论如何，强制进行本地资源回收，防止死锁或僵尸进程
+        print("\n🧹 正在清理本地残留进程与描述符...")
+        if master_fd:
+            try: os.close(master_fd) 
+            except: pass
+        if local_proc and local_proc.poll() is None:
+            local_proc.terminate()
+            print("🔒 本地守护进程已安全关闭。")
+
+# ==================== 🚀 一键运行入口 ====================
+if __name__ == "__main__":
+    start_transfer_job()
 ```
 
 本文以本组制作的为例，上传最后结果如下：
